@@ -2,36 +2,31 @@
 #include "prime-factors.cpp"
 
 using namespace testing;
-class PrimeFixture : public Test {
-public:
-	PrimeFactors prime_factor;
+using std::vector;
+
+struct PrimeParam {
+	int         input;
 	vector<int> expected;
 };
-TEST_F(PrimeFixture, Of1) {
-	expected = {};
-	EXPECT_EQ(expected, prime_factor.of(1));
+
+class PrimeFixture : public TestWithParam<PrimeParam> {};
+
+TEST_P(PrimeFixture, Of) {
+	EXPECT_EQ(GetParam().expected, PrimeFactors::of(GetParam().input));
 }
-TEST_F(PrimeFixture, Of2) {
-	expected = {2};
-	EXPECT_EQ(expected, prime_factor.of(2));
-}
-TEST_F(PrimeFixture, Of3) {
-	expected = {3};
-	EXPECT_EQ(expected, prime_factor.of(3));
-}
-TEST_F(PrimeFixture, Of4) {
-	expected = {2, 2};
-	EXPECT_EQ(expected, prime_factor.of(4));
-}
-TEST_F(PrimeFixture, Of6) {
-	expected = {2, 3};
-	EXPECT_EQ(expected, prime_factor.of(6));
-}
-TEST_F(PrimeFixture, Of9) {
-	expected = {3, 3};
-	EXPECT_EQ(expected, prime_factor.of(9));
-}
-TEST_F(PrimeFixture, Of12) {
-	expected = {2, 2, 3};
-	EXPECT_EQ(expected, prime_factor.of(12));
-}
+
+INSTANTIATE_TEST_SUITE_P(PrimeFactorsTests, PrimeFixture, Values(
+	PrimeParam{ 1,          vector<int>{}                                                         },
+	PrimeParam{ 2,          vector<int>{2}                                                        },
+	PrimeParam{ 3,          vector<int>{3}                                                        },
+	PrimeParam{ 4,          vector<int>{2,2}                                                      },
+	PrimeParam{ 6,          vector<int>{2,3}                                                      },
+	PrimeParam{ 9,          vector<int>{3,3}                                                      },
+	PrimeParam{ 12,         vector<int>{2,2,3}                                                    },
+	// 큰 수 (10억 이상)
+	PrimeParam{ 1000000000, vector<int>{2,2,2,2,2,2,2,2,2, 5,5,5,5,5,5,5,5,5}                   }, // 2^9  x 5^9
+	PrimeParam{ 1073741824, vector<int>{2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2} }, // 2^30
+	PrimeParam{ 1500000000, vector<int>{2,2,2,2,2,2,2,2, 3, 5,5,5,5,5,5,5,5,5}                  }, // 2^8  x 3 x 5^9
+	PrimeParam{ 2000000000, vector<int>{2,2,2,2,2,2,2,2,2,2, 5,5,5,5,5,5,5,5,5}                 }, // 2^10 x 5^9
+	PrimeParam{ 2147483647, vector<int>{2147483647}                                               }  // Mersenne 소수 (2^31 - 1)
+));
